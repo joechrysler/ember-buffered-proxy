@@ -78,22 +78,34 @@ export default Ember.Mixin.create({
     return value;
   },
 
-  applyBufferedChanges: function(onlyTheseKeys) {
+  applyBufferedChanges: function(onlyTheseKeys, invert) {
     var buffer  = this.buffer;
     var content = this.get('content');
 
-    keys(buffer).forEach(function(key) {
-      if (isArray(onlyTheseKeys) && !onlyTheseKeys.contains(key)) {
-        return;
+    if (!invert) {
+      // Do it the old way
+      keys(buffer).forEach(function(key) {
+        if (isArray(onlyTheseKeys) && !onlyTheseKeys.contains(key)) {
+          return;
+        }
+
+        set(content, key, buffer[key]);
+      });
+
+      this.initializeBuffer(onlyTheseKeys);
+
+      if (empty(this.buffer)) {
+        this.set('hasBufferedChanges', false);
       }
+    } else {
+      // Do it the new way
+      keys(buffer).forEach(function(key) {
+        if (isArray(onlyTheseKeys) && invert && onlyTheseKeys.contains(key)) {
+          return;
+        }
 
-      set(content, key, buffer[key]);
-    });
-
-    this.initializeBuffer(onlyTheseKeys);
-
-    if (empty(this.buffer)) {
-      this.set('hasBufferedChanges', false);
+        set(content, key, buffer[key]);
+      });
     }
   },
 

@@ -66,6 +66,21 @@ test('that it works', function() {
   equal(content.baz, 1);
 });
 
+test('that apply only these keys with invert works', function() {
+  var BufferedPorxy = Ember.ObjectProxy.extend(Mixin);
+  var content = {};
+  var proxy = BufferedPorxy.create({ content: content });
+  ok(!('foo' in content));
+  ok(!('baz' in content));
+  proxy.set('foo', 'bar');
+  proxy.set('baz', 1);
+  ok(!('foo' in content));
+  ok(!('baz' in content));
+  proxy.applyBufferedChanges(['foo'], true);
+  ok(!('foo' in content));
+  equal(content.baz, 1);
+});
+
 test('that apply/discard only these keys works', function() {
   var BufferedPorxy = Ember.ObjectProxy.extend(Mixin);
 
